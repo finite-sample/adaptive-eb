@@ -27,7 +27,7 @@ We replace closed-form optimization with a Multiplicative Weights Update (MWU) a
 This turns entropy balancing into a no-regret learning process over marginal constraints.
 
 
-###  Problem Statement
+### Problem Statement
 
 Given sample covariates \${x\_i}*{i=1}^n\in\mathbb R^d\$ and population moments \$\bar x\_\text{pop}\in\mathbb R^d\$, find weights \$w\in\Delta^{n-1}\$ such that
 \begin{align\*}
