@@ -26,10 +26,9 @@ We replace closed-form optimization with a Multiplicative Weights Update (MWU) a
 
 This turns entropy balancing into a no-regret learning process over marginal constraints.
 
-
 ### Problem Statement
 
-Given sample covariates \(x_i \in \mathbb{R}^d,\; i = 1,\dots,n\) and target population moments \(\bar{x}_{\text{pop}} \in \mathbb{R}^d\), find weights \(w \in \Delta^{\,n-1}\) such that
+Given sample covariates $\(x_i \in \mathbb{R}^d,\; i = 1,\dots,n\)$ and target population moments $\(\bar{x}_{\text{pop}} \in \mathbb{R}^d\)$, find weights $\(w \in \Delta^{\,n-1}\)$ such that
 
 $$\[
   \sum_{i=1}^n w_i\,x_i \;=\; \bar{x}_{\text{pop}},
@@ -50,7 +49,7 @@ where \(u\) are base weights (often uniform).
 
 ---
 
-### Multiplicative‑Weights Reformulation
+### Multiplicative‑Weights Reformulation
 
 Writing the Lagrangian with dual \$\lambda\in\mathbb R^d\$ gives
 $$
