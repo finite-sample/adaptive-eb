@@ -44,7 +44,7 @@ where \$u\$ are base weights (often uniform).
 ### Multiplicative‑Weights Reformulation
 
 Writing the Lagrangian with dual \$\lambda\in\mathbb R^d\$ gives
-$w\_i(\lambda)=\frac{u_i\,e^{-\lambda^\top x_i}}{Z(\lambda)},\quad Z(\lambda)=\sum_j u_j e^{-\lambda^\top x_j}.$
+$$w\_i(\lambda)=\frac{u_i\,e^{-\lambda^\top x_i}}{Z(\lambda)},\quad Z(\lambda)=\sum_j u_j e^{-\lambda^\top x_j}.$$
 
 A **mirror‑descent / MWU** view keeps a weight vector \$w^{(t)}\$ and updates
 
