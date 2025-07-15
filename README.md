@@ -29,26 +29,38 @@ This turns entropy balancing into a no-regret learning process over marginal con
 
 ### Problem Statement
 
-Given sample covariates \${x\_i}*{i=1}^n\in\mathbb R^d\$ and population moments \$\bar x\_\text{pop}\in\mathbb R^d\$, find weights \$w\in\Delta^{n-1}\$ such that
-\begin{align\*}
-\sum*{i=1}^n w\_i x\_i &= \bar x\_\text{pop}, \qquad w\_i>0, ;\sum\_i w\_i=1.
-\end{align\*}
-Classical EB solves
-\begin{align\*}
-\min\_{w}; \text{KL}(w,|,u) \quad\text{s.t. the moment constraints},\tag{EB}
-\end{align\*}
-where \$u\$ are base weights (often uniform).
+Given sample covariates \(x_i \in \mathbb{R}^d,\; i = 1,\dots,n\) and target population moments \(\bar{x}_{\text{pop}} \in \mathbb{R}^d\), find weights \(w \in \Delta^{\,n-1}\) such that
+
+$$\[
+  \sum_{i=1}^n w_i\,x_i \;=\; \bar{x}_{\text{pop}},
+  \qquad
+  w_i > 0,\;
+  \sum_{i=1}^n w_i = 1.
+\]$$
+
+Classical *entropy balancing* solves
+
+$$\[
+  \min_{w}\;\mathrm{KL}\bigl(w \;\|\; u\bigr)
+  \quad\text{s.t. the moment constraints},
+  \tag{EB}
+\]$$
+
+where \(u\) are base weights (often uniform).
 
 ---
 
 ### Multiplicative‑Weights Reformulation
 
 Writing the Lagrangian with dual \$\lambda\in\mathbb R^d\$ gives
-$$w\_i(\lambda)=\frac{u_i\,e^{-\lambda^\top x_i}}{Z(\lambda)},\quad Z(\lambda)=\sum_j u_j e^{-\lambda^\top x_j}.$$
+$$
+w\_i(\lambda)=\frac{u_i\,e^{-\lambda^\top x_i}}{Z(\lambda)},\quad Z(\lambda)=\sum_j u_j e^{-\lambda^\top x_j}
+$$
 
 A **mirror‑descent / MWU** view keeps a weight vector \$w^{(t)}\$ and updates
 
-$$w^{(t+1)}_i;\propto;w^{(t)}_i,\exp\bigl(-\eta, (x_i-\bar x_\text{pop})^\top g^{(t)}\bigr),\tag{MWU}
+$$
+w^{(t+1)}_i;\propto;w^{(t)}_i,\exp\bigl(-\eta, (x_i-\bar x_\text{pop})^\top g^{(t)}\bigr),\tag{MWU}
 $$
 
 where \$g^{(t)}=\sum\_i w^{(t)}\_i x\_i-\bar x\_\text{pop}\$ is the current moment error and \$\eta>0\$ a learning rate.
