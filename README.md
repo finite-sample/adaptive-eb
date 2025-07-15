@@ -30,9 +30,6 @@ This turns entropy balancing into a no-regret learning process over marginal con
 
 Given sample covariates $\(x_i \in \mathbb{R}^d,\; i = 1,\dots,n\)$ and target population moments $\(\bar{x}_{\text{pop}} \in \mathbb{R}^d\)$, find weights $\(w \in \Delta^{\,n-1}\)$ such that
 
-```math
-```
-
 $$
 \sum_{i=1}^{n} w_i \, x_i \;=\; \bar{x}_{\text{pop}},
 \qquad
