@@ -51,13 +51,13 @@ where \(u\) are base weights (often uniform).
 
 ### Multiplicative‑Weights Reformulation
 
-Writing the Lagrangian with dual \$\lambda\in\mathbb R^d\$ gives    
+Writing the Lagrangian with dual $\lambda\in\mathbb R^d$ gives    
 
 $$
 w\_i(\lambda)=\frac{u_i\,e^{-\lambda^\top x_i}}{Z(\lambda)},\quad Z(\lambda)=\sum_j u_j e^{-\lambda^\top x_j}
 $$
 
-A **mirror‑descent / MWU** view keeps a weight vector \$w^{(t)}\$ and updates
+A **mirror‑descent MWU** view keeps a weight vector $w^{(t)}$ and updates
 
 $$
 w^{(t+1)}_i;\propto;w^{(t)}_i,\exp\bigl(-\eta, (x_i-\bar x_\text{pop})^\top g^{(t)}\bigr),\tag{MWU}
@@ -68,14 +68,14 @@ where $g^{(t)}=\sum\_i w^{(t)}\_i x\_i-\bar x\_\text{pop}$ is the current moment
 * **Batch mode:** update using the full \$X\$.
 * **Streaming mode:** apply the same exponential update to each mini‑batch; revisit weights over epochs.
 
-The update (MWU) is a no‑regret algorithm that converges to the EB solution with rate \$\tilde{\mathcal O}(1/\sqrt{T})\$ under standard mirror‑descent guarantees.
+The update (MWU) is a no‑regret algorithm that converges to the EB solution with rate $\tilde{\mathcal O}(1/\sqrt{T})$ under standard mirror‑descent guarantees.
 
 ---
 
 ### Simulation Example
 
-* \$n=3000\$, \$d=10\$ covariates drawn i.i.d. \$\mathcal N(0,I)\$ and scaled.
-* Population targets \$\bar x\_{\text{pop}}\$ sampled Uniform$\[-0.3,0.3]\$.
+* $n=3000$, $d=10$ covariates drawn i.i.d. $\mathcal N(0,I)$ and scaled.
+* Population targets $\bar x\_{\text{pop}}$ sampled Uniform$\[-0.3,0.3]\$.
 * Algorithms compared:
   1. **BFGS** solution of (EB) (batch, closed‑form)
   2. **Batch MWU** (full data each iteration)
