@@ -51,7 +51,8 @@ where \(u\) are base weights (often uniform).
 
 ### Multiplicative‑Weights Reformulation
 
-Writing the Lagrangian with dual \$\lambda\in\mathbb R^d\$ gives
+Writing the Lagrangian with dual \$\lambda\in\mathbb R^d\$ gives    
+
 $$
 w\_i(\lambda)=\frac{u_i\,e^{-\lambda^\top x_i}}{Z(\lambda)},\quad Z(\lambda)=\sum_j u_j e^{-\lambda^\top x_j}
 $$
@@ -62,7 +63,7 @@ $$
 w^{(t+1)}_i;\propto;w^{(t)}_i,\exp\bigl(-\eta, (x_i-\bar x_\text{pop})^\top g^{(t)}\bigr),\tag{MWU}
 $$
 
-where \$g^{(t)}=\sum\_i w^{(t)}\_i x\_i-\bar x\_\text{pop}\$ is the current moment error and \$\eta>0\$ a learning rate.
+where $g^{(t)}=\sum\_i w^{(t)}\_i x\_i-\bar x\_\text{pop}$ is the current moment error and $\eta>0$ a learning rate.
 
 * **Batch mode:** update using the full \$X\$.
 * **Streaming mode:** apply the same exponential update to each mini‑batch; revisit weights over epochs.
