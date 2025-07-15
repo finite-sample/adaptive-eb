@@ -40,8 +40,11 @@ $$
 
 Classical *entropy balancing* solves
 
-
-![Kullback-Leibler Divergence Optimization](https://latex.codecogs.com/svg.latex?\min_{w}\;\mathrm{KL}\bigl(w \;\|\; u\bigr)%0A%09%20\quad\text{s.t.%20the%20moment%20constraints},%0A%09%20\tag{EB})
+$$
+\min_{w}\;\mathrm{KL}\bigl(w \;\|\; u\bigr)
+\quad\text{s.t. the moment constraints},
+\tag{EB}
+$$
 
 
 where ($u$) are base weights (often uniform).
