@@ -46,6 +46,12 @@ $$
 \tag{EB}
 $$
 
+```math
+\min_{w}\;\mathrm{KL}\bigl(w \;\|\; u\bigr)
+  \quad\text{s.t. the moment constraints},
+  \tag{EB}
+```
+
 where ($u$) are base weights (often uniform).
 
 ---
