@@ -1,0 +1,329 @@
+\documentclass[12pt, letterpaper]{article}
+\usepackage[titletoc,title]{appendix}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+\usepackage[linkcolor=blue,
+			colorlinks=true,
+			urlcolor=blue,
+			pdfstartview={XYZ null null 1.00},
+			pdfpagemode=UseNone,
+			citecolor={black},
+			pdftitle={blacklight}]{hyperref}
+
+%\newcites{SI}{SI References}
+\usepackage{natbib}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{placeins}
+\usepackage{algorithm2e}
+\usepackage{geometry}  % see geometry.pdf on how to lay out the page. There's lots.
+\geometry{letterpaper} % This is 8.5x11 paper. Options are a4paper or a5paper or other...
+\usepackage{graphicx}  % Handles inclusion of major graphics formats and allows use of
+\usepackage{units}
+\usepackage{amsfonts,amsmath,amsbsy}
+\usepackage{amsxtra}
+\usepackage{verbatim}
+%\setcitestyle{round,semicolon,aysep={},yysep={;}}
+\usepackage{setspace} % Permits line spacing control. Options are:
+%\doublespacing
+%\onehalfspace
+%\usepackage{sectsty}    % Permits control of section header styles
+\usepackage{pdflscape}
+\usepackage{fancyhdr}   % Permits header customization. See header section below.
+\usepackage{url}        % Correctly formats URLs with the \url{} tag
+\usepackage{xurl}
+\usepackage{fullpage}   %1-inch margins
+\usepackage{multirow}
+\usepackage{verbatim}
+\usepackage{rotating}
+\setlength{\parindent}{3em}
+
+%\usepackage[T1]{fontenc}
+%\usepackage[bitstream-charter]{mathdesign}
+
+\usepackage{chngcntr}
+\usepackage{longtable}
+\usepackage{adjustbox}
+\usepackage{dcolumn}
+\usepackage{tabularx}
+
+\usepackage{lineno}
+
+\usepackage[12pt]{moresize}
+
+\usepackage{pdfpages}
+
+% https://tex.stackexchange.com/questions/611786/misplaced-noalign-because-input-before-booktabs-rule
+% I was getting Misplaced \noalign. \bottomrule on my laptop
+% but not on my desktop...
+% Comment out for older LaTeX versions
+%\iffalse
+\ExplSyntaxOn
+\cs_new:Npn \expandableinput #1
+{ \use:c { @@input } { \file_full_name:n {#1} } }
+\AddToHook{env/tabular/begin}
+{ \cs_set_eq:NN \input \expandableinput }
+\ExplSyntaxOff
+%\fi
+
+
+\usepackage[nameinlink, capitalize, noabbrev]{cleveref}
+
+\def\citeapos#1{\citeauthor{#1}'s (\citeyear{#1})}
+
+\makeatother
+
+\usepackage{footmisc}
+\setlength{\footnotesep}{\baselineskip}
+\makeatother
+\renewcommand{\footnotelayout}{\footnotesize \onehalfspacing}
+%https://tex.stackexchange.com/a/68242
+%prevent footnotes splitting over pages
+\interfootnotelinepenalty=10000
+
+
+% Colors
+\usepackage{color}
+
+\newcommand{\bch}{\color{blue}\em  }   % begin change
+\newcommand{\ying} {\color{orange}\em  }   % begin change
+\newcommand{\bgcd} {\color{purple}\em }
+\newcommand{\ech}{\color{black}\rm  }    % end change
+
+\newcommand{\note}[1]{\textcolor{orange}{#1}}
+
+% Caption
+% Caption
+\usepackage[
+    skip            =0pt,
+    labelfont       =bf, 
+    font            =small,
+    textfont        =small,
+    figurename      =Figure,
+    justification   =justified,
+    singlelinecheck =false,
+    labelsep        =period]
+{caption}
+%\captionsetup[subtable]{font=small,skip=0pt}
+\usepackage{subcaption}
+
+% tt font issues
+% \renewcommand*{\ttdefault}{qcr}
+\renewcommand{\ttdefault}{pcr}
+
+\usepackage{tocloft}
+
+\newcommand{\detailtexcount}[1]{%
+  \immediate\write18{texcount -merge -sum -q #1.tex output.bbl > #1.wcdetail }%
+  \verbatiminput{#1.wcdetail}%
+}
+
+\newcommand{\quickwordcount}[1]{%
+  \immediate\write18{texcount -1 -sum -merge -q #1.tex output.bbl > #1-words.sum }%
+  \input{#1-words.sum} words%
+}
+
+\newcommand{\quickcharcount}[1]{%
+  \immediate\write18{texcount -1 -sum -merge -char -q #1.tex output.bbl > #1-chars.sum }%
+  \input{#1-chars.sum} characters (not including spaces)%
+}
+
+\title{Adaptive Entropy Balancing via Multiplicative Weights\thanks{\href{https://github.com/finite-sample/adaptive-eb}{https://github.com/finite-sample/adaptive-eb}.}}
+
+\author{Gaurav Sood\thanks{Gaurav can be reached at \href{mailto:gsood07@gmail.com}{\footnotesize{\texttt{gsood07@gmail.com}}}}\vspace{.5cm}}
+
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+In applied survey research and causal inference, entropy balancing is used to reweight observational data so that covariate distributions match known or desired population margins. While the standard approach solves a convex optimization problem that minimizes KL divergence from base weights while enforcing exact moment-matching constraints, real-world applications increasingly demand adaptive solutions for streaming data, updated calibration targets, and high-dimensional covariates. We propose replacing closed-form optimization with a Multiplicative Weights Update (MWU) algorithm that maintains weights via iterative exponential updates, operates in batch or streaming mode, and adapts dynamically to changing target moments. Our approach transforms entropy balancing into a no-regret learning process over marginal constraints, offering superior scalability and flexibility while maintaining accuracy comparable to classical methods.
+\end{abstract}
+
+\section{Introduction}
+
+Entropy balancing has become a fundamental tool in survey research and causal inference for adjusting observational data to match population characteristics \citep{hainmueller2012entropy}. The method addresses the common challenge of ensuring that sample covariate distributions align with known population margins, thereby reducing selection bias and improving the validity of statistical inferences.
+
+However, contemporary applications face increasingly complex demands that challenge traditional entropy balancing approaches:
+
+\begin{enumerate}
+\item \textbf{Streaming data requirements:} Modern data collection often involves batched arrivals (e.g., polling waves, rolling panels) that require real-time adjustment rather than batch processing.
+\item \textbf{Dynamic target adjustment:} Calibration targets frequently change (e.g., revised Census benchmarks, updated population estimates) necessitating rapid recomputation.
+\item \textbf{High-dimensional scalability:} Rich administrative datasets with thousands of covariates strain traditional optimization approaches.
+\end{enumerate}
+
+\subsection{Limitations of Current Approaches}
+
+The classical entropy balancing method, typically implemented via quasi-Newton methods like BFGS, exhibits several limitations in modern applications:
+
+\begin{itemize}
+\item \textbf{Non-adaptive nature:} Each change in targets or data requires solving the optimization problem from scratch.
+\item \textbf{Scalability constraints:} Performance degrades significantly with high-dimensional covariate spaces ($d > 100$).
+\item \textbf{Batch-only operation:} The method assumes complete dataset availability, precluding streaming applications.
+\end{itemize}
+
+\subsection{Our Contribution}
+
+We propose an adaptive entropy balancing framework based on Multiplicative Weights Updates (MWU) that addresses these limitations while maintaining the theoretical guarantees of classical entropy balancing. Our approach leverages the connection between entropy balancing and online learning to create a streaming-compatible, scalable alternative that adapts seamlessly to changing conditions.
+
+\section{Methodology}
+
+\subsection{Problem Formulation}
+
+Given sample covariates $x_i \in \mathbb{R}^d$ for $i = 1,\ldots,n$ and target population moments $\bar{x}_{\text{pop}} \in \mathbb{R}^d$, we seek weights $w \in \Delta^{n-1}$ (the probability simplex) such that:
+
+\begin{equation}
+\sum_{i=1}^{n} w_i x_i = \bar{x}_{\text{pop}}, \qquad w_i > 0, \quad \sum_{i=1}^{n} w_i = 1
+\label{eq:moment_constraints}
+\end{equation}
+
+Classical entropy balancing solves the optimization problem:
+
+\begin{equation}
+\min_{w} \text{KL}(w \| u) \quad \text{subject to the moment constraints}
+\tag{EB}
+\label{eq:entropy_balancing}
+\end{equation}
+
+where $u$ represents base weights (typically uniform) and $\text{KL}(w \| u) = \sum_{i=1}^n w_i \log(w_i/u_i)$ is the Kullback-Leibler divergence.
+
+\subsection{Multiplicative Weights Reformulation}
+
+The Lagrangian formulation of problem~\eqref{eq:entropy_balancing} with dual variables $\lambda \in \mathbb{R}^d$ yields the closed-form solution:
+
+\begin{equation}
+w_i(\lambda) = \frac{u_i e^{-\lambda^{\top} x_i}}{Z(\lambda)}, \quad Z(\lambda) = \sum_{j=1}^n u_j e^{-\lambda^{\top} x_j}
+\label{eq:lagrangian_solution}
+\end{equation}
+
+This exponential form naturally suggests a mirror-descent interpretation. We maintain a weight vector $w^{(t)}$ and apply the multiplicative update:
+
+\begin{equation}
+w^{(t+1)}_i \propto w^{(t)}_i \exp\left(-\eta \left(x_i - \bar{x}_{\text{pop}}\right)^{\top} g^{(t)}\right)
+\tag{MWU}
+\label{eq:mwu_update}
+\end{equation}
+
+where $g^{(t)} = \sum_{i=1}^n w^{(t)}_i x_i - \bar{x}_{\text{pop}}$ represents the current moment error and $\eta > 0$ is the learning rate.
+
+\subsection{Algorithm Variants}
+
+Our framework supports multiple operational modes:
+
+\begin{itemize}
+\item \textbf{Batch mode:} Updates use the complete dataset $X$ at each iteration.
+\item \textbf{Streaming mode:} Applies exponential updates to mini-batches, cycling through the data over multiple epochs.
+\item \textbf{Adaptive mode:} Continues from current weights when targets change, avoiding restart costs.
+\end{itemize}
+
+\begin{algorithm}[H]
+\SetAlgoLined
+\KwData{Covariates $X \in \mathbb{R}^{n \times d}$, targets $\bar{x}_{\text{pop}}$, learning rate $\eta$}
+\KwResult{Balanced weights $w$}
+Initialize $w^{(0)}_i = 1/n$ for all $i$\;
+\For{$t = 0, 1, \ldots, T-1$}{
+    Compute moment error: $g^{(t)} = \sum_{i=1}^n w^{(t)}_i x_i - \bar{x}_{\text{pop}}$\;
+    \For{$i = 1, \ldots, n$}{
+        $w^{(t+1)}_i = w^{(t)}_i \exp\left(-\eta (x_i - \bar{x}_{\text{pop}})^{\top} g^{(t)}\right)$\;
+    }
+    Normalize: $w^{(t+1)} \leftarrow w^{(t+1)} / \sum_j w^{(t+1)}_j$\;
+}
+\caption{Multiplicative Weights Update for Entropy Balancing}
+\end{algorithm}
+
+\subsection{Theoretical Properties}
+
+The MWU algorithm provides no-regret guarantees with convergence rate $\tilde{\mathcal{O}}(1/\sqrt{T})$ under standard mirror-descent analysis \citep{Arora12}. Specifically, the cumulative regret satisfies:
+
+\begin{equation}
+\sum_{t=1}^T \left\langle g^{(t)}, w^{(t)} - w^* \right\rangle \leq \frac{\log n}{\eta} + \frac{\eta T B^2}{2}
+\end{equation}
+
+where $w^*$ is the optimal entropy balancing solution and $B$ bounds the moment constraint violations.
+
+\section{Experimental Results}
+
+\subsection{Simulation Setup}
+
+We evaluate our approach using synthetic datasets with the following configuration:
+\begin{itemize}
+\item Sample size: $n = 3000$
+\item Covariates: $d = 10$ (standard) and $d = 100$ (high-dimensional)
+\item Covariate generation: i.i.d. $\mathcal{N}(0, I)$, then scaled
+\item Population targets: $\bar{x}_{\text{pop}}$ sampled uniformly from $[-0.3, 0.3]^d$
+\end{itemize}
+
+We compare four algorithmic approaches:
+\begin{enumerate}
+\item \textbf{BFGS:} Classical entropy balancing via quasi-Newton optimization
+\item \textbf{Batch MWU:} Full dataset updates at each iteration
+\item \textbf{Streaming MWU:} Mini-batches of size 50 over 10 epochs
+\item \textbf{Adaptive MWU:} Target shift after 5 epochs, continued optimization
+\end{enumerate}
+
+\subsection{Results}
+
+Table~\ref{tab:results} presents performance comparisons across different scenarios and dimensionalities.
+
+\begin{table}[ht]
+\centering
+\caption{Performance comparison of entropy balancing methods}
+\label{tab:results}
+\begin{tabular}{lrrp{4cm}}
+\toprule
+\textbf{Scenario} & \textbf{L2 Error} & \textbf{Time (s)} & \textbf{Comments} \\
+\midrule
+BFGS ($d=10$) & 0.0000 & 0.008 & 5 iterations \\
+Batch MWU ($d=10$) & 0.0000 & 0.004 & 50 iterations \\
+Streaming MWU & 0.0042 & 0.022 & 10 passes \\
+Adaptive MWU (shift) & 0.0028 & 0.020 & smooth adaptation \\
+BFGS ($d=100$) & 0.0001 & 1.184 & 44 iterations \\
+MWU ($d=100$) & 0.0000 & 0.081 & 200 iterations \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Key Findings}
+
+The experimental results demonstrate several important advantages of the MWU approach:
+
+\begin{itemize}
+\item \textbf{Accuracy preservation:} MWU achieves comparable or superior accuracy to classical BFGS optimization.
+\item \textbf{Scalability gains:} In high-dimensional settings ($d=100$), MWU provides order-of-magnitude speedups while maintaining accuracy.
+\item \textbf{Adaptive capability:} When targets shift mid-optimization, MWU continues seamlessly without restart penalties.
+\item \textbf{Streaming compatibility:} Mini-batch processing maintains reasonable accuracy with controlled computational overhead.
+\end{itemize}
+
+\section{Discussion and Conclusions}
+
+\subsection{Practical Implications}
+
+Our MWU-based entropy balancing framework addresses critical limitations of classical approaches:
+
+\begin{itemize}
+\item \textbf{Flexibility:} Handles target changes without restarting optimization procedures.
+\item \textbf{Scalability:} Runtime complexity scales linearly in both sample size $n$ and dimensionality $d$, avoiding expensive matrix inversions.
+\item \textbf{Streaming readiness:} Identical exponential updates work effectively in both mini-batch and online settings.
+\item \textbf{Interpretability:} Maintains strictly positive weights with intuitive learning rate control via $\eta$.
+\end{itemize}
+
+\subsection{Future Directions}
+
+Several extensions merit investigation:
+\begin{itemize}
+\item Adaptive learning rate schedules for improved convergence
+\item Integration with modern automatic differentiation frameworks
+\item Application to complex survey designs with hierarchical constraints
+\item Extension to inequality moment constraints
+\end{itemize}
+
+\subsection{Conclusion}
+
+MWU provides a practical, theoretically grounded alternative to classical entropy balancing when adaptivity, streaming data processing, or high-dimensional covariates are important considerations. The method's simplicity, combined with strong theoretical guarantees and empirical performance, makes it an attractive tool for modern survey research and causal inference applications.
+
+\bibliographystyle{apalike}
+\bibliography{mwu}
+
+\end{document}
